@@ -51,6 +51,8 @@ export default function SignUpForm() {
           const response = await axios.get<ApiResponse>(
             `/api/check-username-unique?username=${debouncedUsername}`
           );
+          // Set the message regardless of success status
+          // axios only rejects on 4xx/5xx, so we get 200 responses here
           setUsernameMessage(response.data.message);
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
@@ -75,7 +77,7 @@ export default function SignUpForm() {
         description: response.data.message,
       });
 
-      router.replace(`/verify/${username}`);
+      router.replace(`/sign-in`);
 
       setIsSubmitting(false);
     } catch (error) {

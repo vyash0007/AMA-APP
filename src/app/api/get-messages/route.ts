@@ -1,45 +1,55 @@
-import dbConnect from '@/lib/dbConnect';
-import UserModel from '@/model/User';
-import mongoose from 'mongoose';
 import { User } from 'next-auth';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
+import UserModel from '@/model/User';
+import dbConnect from '@/lib/dbConnect';
+import fileStorage from '@/lib/fileStorage';
 
 export async function GET(request: Request) {
-  await dbConnect();
+  console.log('📥 GET /api/get-messages called');
+  
   const session = await getServerSession(authOptions);
   const _user: User = session?.user;
+  console.log('📥 User from session:', _user ? `${_user.username} (${_user._id})` : 'null');
 
   if (!session || !_user) {
+    console.log('📥 Not authenticated');
     return Response.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
     );
   }
-  const userId = new mongoose.Types.ObjectId(_user._id);
-  try {
-    const user = await UserModel.aggregate([
-      { $match: { _id: userId } },
-      { $unwind: '$messages' },
-      { $sort: { 'messages.createdAt': -1 } },
-      { $group: { _id: '$_id', messages: { $push: '$messages' } } },
-    ]).exec();
 
-    if (!user || user.length === 0) {
+  try {
+    // Use fileStorage (file-based database for development)
+    console.log('📥 Querying fileStorage with ID:', _user._id);
+    const user = fileStorage.findUserById(_user._id as string);
+
+    if (!user) {
+      console.log('📥 User not found, returning 404');
       return Response.json(
         { message: 'User not found', success: false },
         { status: 404 }
       );
     }
 
+    console.log('📥 User found:', user.username, '- proceeding to fetch messages');
+    // Return user's messages sorted by creation date (newest first)
+    const messages = (user.messages || []).sort((a: any, b: any) => {
+      const timeA = new Date(b.createdAt || Date.now()).getTime();
+      const timeB = new Date(a.createdAt || Date.now()).getTime();
+      return timeA - timeB;
+    });
+
+    console.log('📥 Returning', messages.length, 'messages');
     return Response.json(
-      { messages: user[0].messages },
+      { messages },
       {
         status: 200,
       }
     );
   } catch (error) {
-    console.error('An unexpected error occurred:', error);
+    console.error('📥 An unexpected error occurred:', error);
     return Response.json(
       { message: 'Internal server error', success: false },
       { status: 500 }

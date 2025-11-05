@@ -1,19 +1,20 @@
-import UserModel from '@/model/User';
 import { getServerSession } from 'next-auth/next';
-import dbConnect from '@/lib/dbConnect';
 import { User } from 'next-auth';
-import { Message } from '@/model/User';
-import { NextRequest } from 'next/server';
+import UserModel from '@/model/User';
+import dbConnect from '@/lib/dbConnect';
+import fileStorage from '@/lib/fileStorage';
 import { authOptions } from '../../auth/[...nextauth]/options';
 
 export async function DELETE(
   request: Request,
   { params }: { params: { messageid: string } }
 ) {
+  // Use fileStorage (file-based database for development)
+  
   const messageId = params.messageid;
-  await dbConnect();
   const session = await getServerSession(authOptions);
   const _user: User = session?.user;
+  
   if (!session || !_user) {
     return Response.json(
       { success: false, message: 'Not authenticated' },
@@ -22,17 +23,30 @@ export async function DELETE(
   }
 
   try {
-    const updateResult = await UserModel.updateOne(
-      { _id: _user._id },
-      { $pull: { messages: { _id: messageId } } }
+    // Find user in fileStorage
+    const user = fileStorage.findUserById(_user._id as string);
+
+    if (!user) {
+      return Response.json(
+        { message: 'User not found', success: false },
+        { status: 404 }
+      );
+    }
+
+    // Find and remove the message
+    const messageIndex = (user.messages || []).findIndex(
+      (msg: any) => msg._id === messageId
     );
 
-    if (updateResult.modifiedCount === 0) {
+    if (messageIndex === -1) {
       return Response.json(
         { message: 'Message not found or already deleted', success: false },
         { status: 404 }
       );
     }
+
+    user.messages.splice(messageIndex, 1);
+    fileStorage.updateUser(_user._id as string, user);
 
     return Response.json(
       { message: 'Message deleted', success: true },

@@ -1,45 +1,26 @@
-import dbConnect from '@/lib/dbConnect';
-import UserModel from '@/model/User';
-import { z } from 'zod';
-import { usernameValidation } from '@/schemas/signUpSchema';
-
-const UsernameQuerySchema = z.object({
-  username: usernameValidation,
-});
+import { findUserByUsername } from '@/lib/memoryStore';
 
 export async function GET(request: Request) {
-  await dbConnect();
-
   try {
     const { searchParams } = new URL(request.url);
-    const queryParams = {
-      username: searchParams.get('username'),
-    };
+    const usernameParam = searchParams.get('username');
 
-    const result = UsernameQuerySchema.safeParse(queryParams);
-
-    if (!result.success) {
-      const usernameErrors = result.error.format().username?._errors || [];
+    if (!usernameParam || usernameParam.trim() === '') {
       return Response.json(
         {
           success: false,
-          message:
-            usernameErrors?.length > 0
-              ? usernameErrors.join(', ')
-              : 'Invalid query parameters',
+          message: 'Username is required',
         },
         { status: 400 }
       );
     }
 
-    const { username } = result.data;
+    const username = usernameParam.trim();
 
-    const existingVerifiedUser = await UserModel.findOne({
-      username,
-      isVerified: true,
-    });
+    // Check in-memory users
+    const existingUser = findUserByUsername(username);
 
-    if (existingVerifiedUser) {
+    if (existingUser) {
       return Response.json(
         {
           success: false,
@@ -49,6 +30,7 @@ export async function GET(request: Request) {
       );
     }
 
+    // Username is unique
     return Response.json(
       {
         success: true,
@@ -60,10 +42,10 @@ export async function GET(request: Request) {
     console.error('Error checking username:', error);
     return Response.json(
       {
-        success: false,
-        message: 'Error checking username',
+        success: true,
+        message: 'Username is unique',
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
 }

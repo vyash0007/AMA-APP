@@ -1,8 +1,9 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import User from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
-import UserModel from '@/model/User';
+import fileStorage from '@/lib/fileStorage';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,31 +15,41 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials: any): Promise<any> {
-        await dbConnect();
         try {
-          const user = await UserModel.findOne({
-            $or: [
-              { email: credentials.identifier },
-              { username: credentials.identifier },
-            ],
-          });
+          // Use fileStorage (file-based database for development)
+          
+          console.log('Sign-in attempt with identifier:', credentials.identifier);
+          
+          const user = fileStorage.findUserByEmail(credentials.identifier) || 
+                       fileStorage.findUserByUsername(credentials.identifier);
+          
           if (!user) {
+            console.log('User not found for identifier:', credentials.identifier);
             throw new Error('No user found with this email');
           }
-          if (!user.isVerified) {
-            throw new Error('Please verify your account before logging in');
-          }
+          
+          console.log('User found, checking password...');
+          
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
           );
+          
           if (isPasswordCorrect) {
-            return user;
+            console.log('Password correct, returning user');
+            return {
+              id: user._id,
+              email: user.email,
+              username: user.username,
+              isVerified: user.isVerified,
+              isAcceptingMessages: user.isAcceptingMessages,
+            };
           } else {
             throw new Error('Incorrect password');
           }
         } catch (err: any) {
-          throw new Error(err);
+          console.error('Authorization error:', err.message);
+          throw new Error(err.message || 'Authentication failed');
         }
       },
     }),
@@ -46,7 +57,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token._id = user._id?.toString(); // Convert ObjectId to string
+        token._id = user.id;
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;

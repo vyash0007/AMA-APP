@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "username": "Loki",
+      "email": "vanshkhaneja2004@gmail.com",
+      "password": "$2a$10$5D7WVPhSa4y9h16iW8mGD.Av.CSooxAju9L6e1Ml0wcP7JbyvI6JS",
+      "isVerified": true,
+      "isAcceptingMessages": true,
+      "messages": [
+        {
+          "_id": "1762362502473",
+          "content": "Do you have any pets?",
+          "createdAt": "2025-11-05T17:08:22.473Z"
+        },
+        {
+          "_id": "1762362633129",
+          "content": "What's your favorite movie?",
+          "createdAt": "2025-11-05T17:10:33.129Z"
+        }
+      ],
+      "_id": "1",
+      "createdAt": "2025-11-05T17:07:48.943Z"
+    }
+  ],
+  "nextId": 2
+}

@@ -1,12 +1,9 @@
 import OpenAI from 'openai';
-import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { NextResponse } from 'next/server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-export const runtime = 'edge';
 
 export async function POST(req: Request) {
   try {
@@ -16,14 +13,13 @@ export async function POST(req: Request) {
     const response = await openai.completions.create({
       model: 'gpt-3.5-turbo-instruct',
       max_tokens: 400,
-      stream: true,
+      stream: false,
       prompt,
     });
 
-    const stream = OpenAIStream(response);
+    const text = response.choices[0]?.text || '';
     
-    
-    return new StreamingTextResponse(stream);
+    return NextResponse.json({ text });
   } catch (error) {
     if (error instanceof OpenAI.APIError) {
       // OpenAI API error handling

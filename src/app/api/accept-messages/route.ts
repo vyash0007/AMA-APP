@@ -1,15 +1,16 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
-import dbConnect from '@/lib/dbConnect';
-import UserModel from '@/model/User';
 import { User } from 'next-auth';
+import UserModel from '@/model/User';
+import dbConnect from '@/lib/dbConnect';
+import fileStorage from '@/lib/fileStorage';
 
 export async function POST(request: Request) {
-  // Connect to the database
-  await dbConnect();
-
+  // Use fileStorage (file-based database for development)
+  
   const session = await getServerSession(authOptions);
   const user: User = session?.user;
+  
   if (!session || !session.user) {
     return Response.json(
       { success: false, message: 'Not authenticated' },
@@ -21,15 +22,9 @@ export async function POST(request: Request) {
   const { acceptMessages } = await request.json();
 
   try {
-    // Update the user's message acceptance status
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      userId,
-      { isAcceptingMessages: acceptMessages },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      // User not found
+    const foundUser = fileStorage.findUserById(userId as string);
+    
+    if (!foundUser) {
       return Response.json(
         {
           success: false,
@@ -39,12 +34,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Successfully updated message acceptance status
+    foundUser.isAcceptingMessages = acceptMessages;
+    fileStorage.updateUser(userId as string, foundUser);
+
     return Response.json(
       {
         success: true,
         message: 'Message acceptance status updated successfully',
-        updatedUser,
+        updatedUser: foundUser,
       },
       { status: 200 }
     );
@@ -57,17 +54,17 @@ export async function POST(request: Request) {
   }
 }
 
-
 export async function GET(request: Request) {
-  // Connect to the database
-  await dbConnect();
-
-  // Get the user session
+  console.log('✅ GET /api/accept-messages called');
+  
+  // Use fileStorage (file-based database for development)
+  
   const session = await getServerSession(authOptions);
   const user = session?.user;
+  console.log('✅ User from session:', user ? `${user.username} (${user._id})` : 'null');
 
-  // Check if the user is authenticated
   if (!session || !user) {
+    console.log('✅ Not authenticated');
     return Response.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
@@ -75,18 +72,17 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Retrieve the user from the database using the ID
-    const foundUser = await UserModel.findById(user._id);
+    const foundUser = fileStorage.findUserById(user._id as string);
 
     if (!foundUser) {
-      // User not found
+      console.log('✅ User not found, returning 404');
       return Response.json(
         { success: false, message: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Return the user's message acceptance status
+    console.log('✅ User found:', foundUser.username, '- returning acceptance status');
     return Response.json(
       {
         success: true,
@@ -95,7 +91,7 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error retrieving message acceptance status:', error);
+    console.error('✅ Error retrieving message acceptance status:', error);
     return Response.json(
       { success: false, message: 'Error retrieving message acceptance status' },
       { status: 500 }

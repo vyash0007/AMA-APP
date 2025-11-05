@@ -15,16 +15,40 @@ async function dbConnect(): Promise<void> {
 
   try {
     // Attempt to connect to the database
-    const db = await mongoose.connect(process.env.MONGODB_URI || '', {});
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (!mongoUri) {
+      console.warn('MONGODB_URI environment variable is not set - Database disabled');
+      return;
+    }
+
+    const db = await Promise.race([
+      mongoose.connect(mongoUri, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 5000,
+        connectTimeoutMS: 5000,
+        maxPoolSize: 5,
+        minPoolSize: 2,
+        retryWrites: true,
+        retryReads: true,
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Connection timeout')), 8000)
+      ),
+    ]) as Awaited<ReturnType<typeof mongoose.connect>>;
 
     connection.isConnected = db.connections[0].readyState;
-
     console.log('Database connected successfully');
   } catch (error) {
-    console.error('Database connection failed:', error);
-
-    // Graceful exit in case of a connection error
-    process.exit(1);
+    console.warn('Database connection not available - continuing without database');
+    // Disconnect to prevent buffering
+    try {
+      await mongoose.disconnect();
+    } catch (e) {
+      // Ignore disconnect errors
+    }
+    connection.isConnected = 0;
+    return;
   }
 }
 
