@@ -4,8 +4,6 @@
  * Server-only code - uses Node.js fs module
  */
 
-'use server';
-
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
@@ -171,14 +169,16 @@ class FileStorage {
   }
 }
 
-// Singleton
-let fileStorage: FileStorage | null = null;
+// Singleton instance
+let fileStorageInstance: FileStorage | null = null;
 
-export function getFileStorage(): FileStorage {
-  if (!fileStorage) {
-    fileStorage = new FileStorage();
+function getFileStorageInstance(): FileStorage {
+  if (!fileStorageInstance) {
+    fileStorageInstance = new FileStorage();
   }
-  return fileStorage;
+  return fileStorageInstance;
 }
 
-export default getFileStorage();
+const fileStorage = getFileStorageInstance();
+
+export default fileStorage;
