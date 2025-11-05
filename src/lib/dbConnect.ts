@@ -24,23 +24,30 @@ async function dbConnect(): Promise<void> {
 
     const db = await Promise.race([
       mongoose.connect(mongoUri, {
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 5000,
-        connectTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 3000,
+        socketTimeoutMS: 3000,
+        connectTimeoutMS: 3000,
         maxPoolSize: 5,
-        minPoolSize: 2,
+        minPoolSize: 1,
         retryWrites: true,
         retryReads: true,
+        w: 'majority',
       }),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Connection timeout')), 8000)
+        setTimeout(() => reject(new Error('Connection timeout after 4 seconds')), 4000)
       ),
     ]) as Awaited<ReturnType<typeof mongoose.connect>>;
 
     connection.isConnected = db.connections[0].readyState;
-    console.log('Database connected successfully');
+    console.log('✅ Database connected successfully');
   } catch (error) {
-    console.warn('Database connection not available - continuing without database');
+    console.error('❌ Database connection failed:', error instanceof Error ? error.message : String(error));
+    console.warn('📝 Continuing with limited functionality - please check:');
+    console.warn('   1. MongoDB connection string is correct');
+    console.warn('   2. Database credentials are valid');
+    console.warn('   3. IP address is whitelisted in MongoDB Atlas');
+    console.warn('   4. Network connectivity to MongoDB Atlas');
+    
     // Disconnect to prevent buffering
     try {
       await mongoose.disconnect();
@@ -48,7 +55,7 @@ async function dbConnect(): Promise<void> {
       // Ignore disconnect errors
     }
     connection.isConnected = 0;
-    return;
+    throw error; // Re-throw to let the route handler know
   }
 }
 

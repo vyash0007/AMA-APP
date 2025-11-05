@@ -2,14 +2,13 @@ import { getServerSession } from 'next-auth/next';
 import { User } from 'next-auth';
 import UserModel from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
-import fileStorage from '@/lib/fileStorage';
 import { authOptions } from '../../auth/[...nextauth]/options';
 
 export async function DELETE(
   request: Request,
   { params }: { params: { messageid: string } }
 ) {
-  // Use fileStorage (file-based database for development)
+  // Use MongoDB to delete messages
   
   const messageId = params.messageid;
   const session = await getServerSession(authOptions);
@@ -23,8 +22,9 @@ export async function DELETE(
   }
 
   try {
-    // Find user in fileStorage
-    const user = fileStorage.findUserById(_user._id as string);
+    await dbConnect();
+    // Find user in MongoDB
+    const user = await UserModel.findById(_user._id);
 
     if (!user) {
       return Response.json(
@@ -35,7 +35,7 @@ export async function DELETE(
 
     // Find and remove the message
     const messageIndex = (user.messages || []).findIndex(
-      (msg: any) => msg._id === messageId
+      (msg: any) => msg._id?.toString() === messageId || msg._id === messageId
     );
 
     if (messageIndex === -1) {
@@ -46,7 +46,7 @@ export async function DELETE(
     }
 
     user.messages.splice(messageIndex, 1);
-    fileStorage.updateUser(_user._id as string, user);
+    await user.save();
 
     return Response.json(
       { message: 'Message deleted', success: true },

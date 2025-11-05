@@ -3,7 +3,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import User from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
-import fileStorage from '@/lib/fileStorage';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,12 +15,23 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials: any): Promise<any> {
         try {
-          // Use fileStorage (file-based database for development)
+          // Use MongoDB for authentication
+          
+          try {
+            await dbConnect();
+          } catch (dbError: any) {
+            console.error('Database connection failed during sign-in:', dbError.message);
+            throw new Error('Database unavailable. Please try again later.');
+          }
           
           console.log('Sign-in attempt with identifier:', credentials.identifier);
           
-          const user = fileStorage.findUserByEmail(credentials.identifier) || 
-                       fileStorage.findUserByUsername(credentials.identifier);
+          const user = await User.findOne({
+            $or: [
+              { email: credentials.identifier },
+              { username: credentials.identifier }
+            ]
+          });
           
           if (!user) {
             console.log('User not found for identifier:', credentials.identifier);
@@ -38,7 +48,7 @@ export const authOptions: NextAuthOptions = {
           if (isPasswordCorrect) {
             console.log('Password correct, returning user');
             return {
-              id: user._id,
+              id: (user._id as any).toString(),
               email: user.email,
               username: user.username,
               isVerified: user.isVerified,

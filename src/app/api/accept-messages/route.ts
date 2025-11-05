@@ -3,10 +3,9 @@ import { authOptions } from '../auth/[...nextauth]/options';
 import { User } from 'next-auth';
 import UserModel from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
-import fileStorage from '@/lib/fileStorage';
 
 export async function POST(request: Request) {
-  // Use fileStorage (file-based database for development)
+  // Use MongoDB for updating message acceptance status
   
   const session = await getServerSession(authOptions);
   const user: User = session?.user;
@@ -22,7 +21,12 @@ export async function POST(request: Request) {
   const { acceptMessages } = await request.json();
 
   try {
-    const foundUser = fileStorage.findUserById(userId as string);
+    await dbConnect();
+    const foundUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { isAcceptingMessages: acceptMessages },
+      { new: true }
+    );
     
     if (!foundUser) {
       return Response.json(
@@ -33,9 +37,6 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
-
-    foundUser.isAcceptingMessages = acceptMessages;
-    fileStorage.updateUser(userId as string, foundUser);
 
     return Response.json(
       {
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   console.log('✅ GET /api/accept-messages called');
   
-  // Use fileStorage (file-based database for development)
+  // Use MongoDB to fetch message acceptance status
   
   const session = await getServerSession(authOptions);
   const user = session?.user;
@@ -72,7 +73,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const foundUser = fileStorage.findUserById(user._id as string);
+    await dbConnect();
+    const foundUser = await UserModel.findById(user._id);
 
     if (!foundUser) {
       console.log('✅ User not found, returning 404');

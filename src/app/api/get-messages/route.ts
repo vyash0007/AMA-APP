@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
 import UserModel from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
-import fileStorage from '@/lib/fileStorage';
 
 export async function GET(request: Request) {
   console.log('📥 GET /api/get-messages called');
@@ -21,9 +20,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Use fileStorage (file-based database for development)
-    console.log('📥 Querying fileStorage with ID:', _user._id);
-    const user = fileStorage.findUserById(_user._id as string);
+    // Use MongoDB to fetch user messages
+    await dbConnect();
+    console.log('📥 Querying MongoDB with ID:', _user._id);
+    const user = await UserModel.findById(_user._id);
 
     if (!user) {
       console.log('📥 User not found, returning 404');

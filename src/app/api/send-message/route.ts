@@ -1,9 +1,8 @@
 import User from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
-import fileStorage from '@/lib/fileStorage';
 
 export async function POST(request: Request) {
-  // Use fileStorage (file-based database for development)
+  // Use MongoDB to send messages
   
   console.log('📨 Send-message endpoint called');
   
@@ -20,14 +19,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find user in fileStorage
-    console.log('📨 Looking for user in file storage:', decodedUsername);
-    const user = fileStorage.findUserByUsername(decodedUsername);
+    // Find user in MongoDB
+    await dbConnect();
+    console.log('📨 Looking for user in MongoDB:', decodedUsername);
+    const user = await User.findOne({ username: decodedUsername });
     console.log('📨 Found user:', user ? `${user.username} (${user._id})` : 'null');
 
     if (!user) {
-      console.log('📨 User not found in file storage:', decodedUsername);
-      console.log('📨 Available users:', fileStorage.getAllUsers().map((u: any) => u.username));
+      console.log('📨 User not found in MongoDB:', decodedUsername);
+      const allUsers = await User.find({}, 'username');
+      console.log('📨 Available users:', allUsers.map((u: any) => u.username));
       return Response.json(
         { message: 'User not found', success: false },
         { status: 404 }
@@ -44,15 +45,14 @@ export async function POST(request: Request) {
     }
 
     const newMessage = { 
-      _id: String(Date.now()),
       content, 
-      createdAt: new Date().toISOString()
+      createdAt: new Date()
     } as any;
 
     // Add the new message to the user's messages array
     user.messages.push(newMessage);
-    fileStorage.updateUser(user._id, user);
-    console.log('📨 Message added successfully to file storage');
+    await user.save();
+    console.log('📨 Message added successfully to MongoDB');
 
     return Response.json(
       { message: 'Message sent successfully', success: true },

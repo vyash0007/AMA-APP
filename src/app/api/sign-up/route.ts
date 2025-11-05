@@ -2,10 +2,9 @@ import bcrypt from 'bcryptjs';
 import { signUpSchema } from '@/schemas/signUpSchema';
 import User from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
-import fileStorage from '@/lib/fileStorage';
 
 export async function POST(request: Request) {
-  // Use devStorage (in-memory database for development)
+  // Use MongoDB for user registration
   
   try {
     let body;
@@ -37,8 +36,22 @@ export async function POST(request: Request) {
 
     const { username, email, password } = validationResult.data;
 
+    try {
+      await dbConnect();
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      return Response.json(
+        {
+          success: false,
+          message: 'Database connection failed. Please try again later.',
+        },
+        { status: 503 }
+      );
+    }
+
     // Check if username already exists
-    if (fileStorage.findUserByUsername(username)) {
+    const existingUserByUsername = await User.findOne({ username });
+    if (existingUserByUsername) {
       return Response.json(
         {
           success: false,
@@ -49,7 +62,8 @@ export async function POST(request: Request) {
     }
 
     // Check if email already exists
-    if (fileStorage.findUserByEmail(email)) {
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
       return Response.json(
         {
           success: false,
@@ -62,8 +76,8 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create new user in fileStorage
-    const newUser = fileStorage.createUser({
+    // Create new user in MongoDB
+    const newUser = await User.create({
       username,
       email,
       password: hashedPassword,
@@ -72,7 +86,7 @@ export async function POST(request: Request) {
       messages: [],
     });
 
-    console.log('✨ New user created (fileStorage):', { username, email, id: newUser._id });
+    console.log('✨ New user created (MongoDB):', { username, email, id: newUser._id });
 
     return Response.json(
       {
