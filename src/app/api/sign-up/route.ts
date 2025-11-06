@@ -24,7 +24,9 @@ export async function POST(request: Request) {
     const validationResult = signUpSchema.safeParse(body);
 
     if (!validationResult.success) {
-      const errors = validationResult.error.errors.map(err => err.message).join(', ');
+      const errors = Object.values(validationResult.error.flatten().fieldErrors)
+        .flat()
+        .join(', ');
       return Response.json(
         {
           success: false,

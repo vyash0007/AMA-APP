@@ -51,40 +51,53 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
   };
 
   return (
-    <Card className="card-bordered">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle>{message.content}</CardTitle>
+    <Card className="bg-slate-800/50 border-slate-700 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/20">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-purple-300 text-lg line-clamp-2">{message.content}</CardTitle>
+            <div className="text-xs text-gray-400 mt-2 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
+              {dayjs(message.createdAt).format('MMM D, YYYY h:mm A')}
+            </div>
+          </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant='destructive'>
+              <Button 
+                variant='ghost' 
+                size='sm'
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+              >
                 <X className="w-5 h-5" />
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="bg-slate-800 border-slate-700">
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  this message.
+                <AlertDialogTitle className="text-white">Delete Message</AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-300">
+                  This action cannot be undone. This will permanently delete this message.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>
+                <AlertDialogCancel className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600">
                   Cancel
                 </AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteConfirm}>
-                  Continue
+                <AlertDialogAction 
+                  onClick={handleDeleteConfirm}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  Delete
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        <div className="text-sm">
-          {dayjs(message.createdAt).format('MMM D, YYYY h:mm A')}
-        </div>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent className="pt-0">
+        <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/50">
+          <p className="text-gray-200 text-sm leading-relaxed break-words">{message.content}</p>
+        </div>
+      </CardContent>
     </Card>
   );
 }

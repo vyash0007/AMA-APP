@@ -59,13 +59,20 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-800">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4">
+      <div className="w-full max-w-md p-8 space-y-8 bg-slate-800/50 border border-slate-700 rounded-2xl shadow-2xl backdrop-blur-sm">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Welcome Back to True Feedback
+          <div className="mb-4 flex justify-center">
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400 mb-2">
+            Welcome Back
           </h1>
-          <p className="mb-4">Sign in to continue your secret conversations</p>
+          <p className="text-gray-300 text-sm">Sign in to access your feedback</p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -74,8 +81,12 @@ export default function SignInForm() {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email/Username</FormLabel>
-                  <Input {...field} />
+                  <FormLabel className="text-gray-200">Email or Username</FormLabel>
+                  <Input 
+                    {...field}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                    placeholder="your@email.com or username"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -85,20 +96,30 @@ export default function SignInForm() {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <Input type="password" {...field} />
+                  <FormLabel className="text-gray-200">Password</FormLabel>
+                  <Input 
+                    type="password" 
+                    {...field}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                    placeholder="••••••••"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button className='w-full' type="submit">Sign In</Button>
+            <Button 
+              className='w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-purple-500/50' 
+              type="submit"
+            >
+              Sign In
+            </Button>
           </form>
         </Form>
-        <div className="text-center mt-4">
-          <p>
-            Not a member yet?{' '}
-            <Link href="/sign-up" className="text-blue-600 hover:text-blue-800">
-              Sign up
+        <div className="text-center pt-6 border-t border-slate-700">
+          <p className="text-gray-300 text-sm">
+            New here?{' '}
+            <Link href="/sign-up" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
+              Create an account
             </Link>
           </p>
         </div>

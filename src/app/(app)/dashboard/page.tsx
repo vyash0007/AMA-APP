@@ -134,61 +134,111 @@ function UserDashboard() {
   };
 
   return (
-    <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
-      <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
-
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>{' '}
-        <div className="flex items-center">
-          <input
-            type="text"
-            value={profileUrl}
-            disabled
-            className="input input-bordered w-full p-2 mr-2"
-          />
-          <Button onClick={copyToClipboard}>Copy</Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400 mb-2">
+            Your Dashboard
+          </h1>
+          <p className="text-gray-300">Welcome back, <span className="font-semibold text-purple-300">{username}</span>!</p>
         </div>
-      </div>
 
-      <div className="mb-4">
-        <Switch
-          {...register('acceptMessages')}
-          checked={acceptMessages}
-          onCheckedChange={handleSwitchChange}
-          disabled={isSwitchLoading}
-        />
-        <span className="ml-2">
-          Accept Messages: {acceptMessages ? 'On' : 'Off'}
-        </span>
-      </div>
-      <Separator />
-
-      <Button
-        className="mt-4"
-        variant="outline"
-        onClick={(e) => {
-          e.preventDefault();
-          fetchMessages(true);
-        }}
-      >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <RefreshCcw className="h-4 w-4" />
-        )}
-      </Button>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {messages.length > 0 ? (
-          messages.map((message, index) => (
-            <MessageCard
-              key={String(message._id) || index}
-              message={message}
-              onMessageDelete={handleDeleteMessage}
+        {/* Share Section */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 mb-8 backdrop-blur-sm">
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+            Share Your Feedback Link
+          </h2>
+          <div className="flex gap-2 flex-col sm:flex-row">
+            <input
+              type="text"
+              value={profileUrl}
+              disabled
+              className="flex-1 bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 px-4 py-2 rounded-lg font-mono text-sm"
             />
-          ))
-        ) : (
-          <p>No messages to display.</p>
-        )}
+            <Button 
+              onClick={copyToClipboard}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-purple-500/50 whitespace-nowrap"
+            >
+              Copy Link
+            </Button>
+          </div>
+        </div>
+
+        {/* Accept Messages Section */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 mb-8 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-bold text-white mb-1">Message Acceptance</h3>
+              <p className="text-gray-400 text-sm">Allow others to send you messages</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                {...register('acceptMessages')}
+                checked={acceptMessages}
+                onCheckedChange={handleSwitchChange}
+                disabled={isSwitchLoading}
+                className="data-[state=checked]:bg-green-500"
+              />
+              <span className={`font-semibold ${acceptMessages ? 'text-green-400' : 'text-gray-400'}`}>
+                {acceptMessages ? 'On' : 'Off'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Messages Section */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Your Messages</h2>
+              <p className="text-gray-400 text-sm mt-1">You have {messages.length} message{messages.length !== 1 ? 's' : ''}</p>
+            </div>
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                fetchMessages(true);
+              }}
+              className="bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600 text-purple-400 hover:text-purple-300 rounded-lg transition-all flex gap-2"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <RefreshCcw className="h-4 w-4" />
+                  Refresh
+                </>
+              )}
+            </Button>
+          </div>
+
+          {messages.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {messages.map((message, index) => (
+                <MessageCard
+                  key={String(message._id) || index}
+                  message={message}
+                  onMessageDelete={handleDeleteMessage}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-slate-800/50 border border-slate-700 rounded-2xl backdrop-blur-sm">
+              <svg className="w-16 h-16 mx-auto text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p className="text-gray-300 text-lg font-semibold">No messages yet</p>
+              <p className="text-gray-400 text-sm mt-2">Share your link to start receiving feedback</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

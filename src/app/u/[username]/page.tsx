@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CardHeader, CardContent, Card } from '@/components/ui/card';
-import { useCompletion } from 'ai/react';
+// Replaced useCompletion with manual fetch to avoid streaming format mismatch
 import {
   Form,
   FormControl,
@@ -38,15 +38,9 @@ export default function SendMessage() {
   const params = useParams<{ username: string }>();
   const username = params.username;
 
-  const {
-    complete,
-    completion,
-    isLoading: isSuggestLoading,
-    error,
-  } = useCompletion({
-    api: '/api/suggest-messages',
-    initialCompletion: initialMessageString,
-  });
+  const [completion, setCompletion] = useState<string>(initialMessageString);
+  const [isSuggestLoading, setIsSuggestLoading] = useState<boolean>(false);
+  const [suggestError, setSuggestError] = useState<Error | null>(null);
 
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
@@ -87,92 +81,134 @@ export default function SendMessage() {
   };
 
   const fetchSuggestedMessages = async () => {
+    setIsSuggestLoading(true);
+    setSuggestError(null);
     try {
-      complete('');
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-      // Handle error appropriately
+      const res = await fetch('/api/suggest-messages', { method: 'POST' });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody?.message || errBody?.error || 'Failed to fetch suggestions');
+      }
+      const data = await res.json();
+      const text = typeof data?.text === 'string' ? data.text : '';
+      setCompletion(text || initialMessageString);
+    } catch (e: any) {
+      console.error('Error fetching messages:', e);
+      setSuggestError(e);
+    } finally {
+      setIsSuggestLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
-      <h1 className="text-4xl font-bold mb-6 text-center">
-        Public Profile Link
-      </h1>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Send Anonymous Message to @{username}</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Write your anonymous message here"
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-center">
-            {isLoading ? (
-              <Button disabled>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait
-              </Button>
-            ) : (
-              <Button type="submit" disabled={isLoading || !messageContent}>
-                Send It
-              </Button>
-            )}
-          </div>
-        </form>
-      </Form>
-
-      <div className="space-y-4 my-8">
-        <div className="space-y-2">
-          <Button
-            onClick={fetchSuggestedMessages}
-            className="my-4"
-            disabled={isSuggestLoading}
-          >
-            Suggest Messages
-          </Button>
-          <p>Click on any message below to select it.</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-10 animate-fadeIn">
+          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400 mb-3">
+            Send Anonymous Feedback
+          </h1>
+          <p className="text-gray-300 text-lg">
+            Send a message to <span className="text-purple-300 font-semibold">@{username}</span>
+          </p>
         </div>
-        <Card>
-          <CardHeader>
-            <h3 className="text-xl font-semibold">Messages</h3>
-          </CardHeader>
-          <CardContent className="flex flex-col space-y-4">
-            {error ? (
-              <p className="text-red-500">{error.message}</p>
-            ) : (
-              parseStringMessages(completion).map((message, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="mb-2"
-                  onClick={() => handleMessageClick(message)}
-                >
-                  {message}
-                </Button>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
-      <Separator className="my-6" />
-      <div className="text-center">
-        <div className="mb-4">Get Your Message Board</div>
-        <Link href={'/sign-up'}>
-          <Button>Create Your Account</Button>
-        </Link>
+
+        {/* Message Form */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-8 mb-8 backdrop-blur-sm">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-200 text-base">Your Message</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Write your honest and anonymous feedback here..."
+                        className="resize-none bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500 min-h-32 rounded-lg"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-center">
+                {isLoading ? (
+                  <Button disabled className="bg-slate-600 text-white px-8 py-2 rounded-lg">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </Button>
+                ) : (
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading || !messageContent}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-8 py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Send Message
+                  </Button>
+                )}
+              </div>
+            </form>
+          </Form>
+        </div>
+
+        {/* Suggested Messages */}
+        <div className="space-y-6 mb-8">
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">Suggested Messages</h3>
+              <Button
+                onClick={fetchSuggestedMessages}
+                disabled={isSuggestLoading}
+                className="bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600 text-purple-300 hover:text-purple-200 rounded-lg transition-all text-sm"
+              >
+                {isSuggestLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    ✨ Get Ideas
+                  </>
+                )}
+              </Button>
+            </div>
+            <p className="text-gray-400 text-sm mb-4">Click any suggestion to use it</p>
+            
+            <div className="space-y-2">
+              {suggestError ? (
+                <div className="text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                  {suggestError.message}
+                </div>
+              ) : (
+                parseStringMessages(completion).map((message, index) => (
+                  <Button
+                    key={index}
+                    onClick={() => handleMessageClick(message)}
+                    className="w-full justify-start text-left bg-slate-700/50 hover:bg-purple-500/30 border border-slate-600 hover:border-purple-500/50 text-gray-200 hover:text-purple-200 rounded-lg transition-all py-3 px-4 h-auto"
+                    variant="ghost"
+                  >
+                    <span className="line-clamp-2">{message}</span>
+                  </Button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-2xl p-8 text-center backdrop-blur-sm">
+          <h3 className="text-xl font-bold text-white mb-3">Want Your Own Board?</h3>
+          <p className="text-gray-300 mb-6">Create an account to receive anonymous feedback from anyone</p>
+          <Link href={'/sign-up'}>
+            <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-8 py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-purple-500/50">
+              Create Your Account
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
