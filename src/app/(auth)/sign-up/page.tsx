@@ -100,20 +100,13 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4">
-      <div className="w-full max-w-md p-8 space-y-8 bg-slate-800/50 border border-slate-700 rounded-2xl shadow-2xl backdrop-blur-sm">
+    <div className="flex justify-center items-center min-h-screen bg-black px-4">
+      <div className="w-full max-w-md p-8 space-y-8 bg-zinc-900 border border-zinc-800 rounded-none shadow-2xl">
         <div className="text-center">
-          <div className="mb-4 flex justify-center">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400 mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
             Create Account
           </h1>
-          <p className="text-gray-300 text-sm">Join our anonymous feedback community</p>
+          <p className="text-gray-400 text-sm">Join our anonymous feedback community</p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -129,11 +122,11 @@ export default function SignUpForm() {
                       field.onChange(e);
                       setUsername(e.target.value);
                     }}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                    className="bg-zinc-800 border-zinc-700 text-white placeholder-gray-500 focus:border-white focus:ring-white"
                     placeholder="Choose a unique username"
                   />
                   {isCheckingUsername && (
-                    <div className="flex items-center gap-2 text-purple-400 text-sm">
+                    <div className="flex items-center gap-2 text-gray-400 text-sm">
                       <Loader2 className="animate-spin h-4 w-4" />
                       Checking availability...
                     </div>
@@ -142,8 +135,8 @@ export default function SignUpForm() {
                     <p
                       className={`text-sm font-medium ${
                         usernameMessage === 'Username is unique'
-                          ? 'text-green-400'
-                          : 'text-red-400'
+                          ? 'text-white'
+                          : 'text-gray-400'
                       }`}
                     >
                       {usernameMessage}
@@ -162,10 +155,10 @@ export default function SignUpForm() {
                   <Input 
                     {...field} 
                     name="email"
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                    className="bg-zinc-800 border-zinc-700 text-white placeholder-gray-500 focus:border-white focus:ring-white"
                     placeholder="your@email.com"
                   />
-                  <p className='text-gray-400 text-xs'>We&apos;ll send you a verification code</p>
+                  <p className='text-gray-500 text-xs'>We&apos;ll send you a verification code</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -181,7 +174,7 @@ export default function SignUpForm() {
                     type="password" 
                     {...field} 
                     name="password"
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                    className="bg-zinc-800 border-zinc-700 text-white placeholder-gray-500 focus:border-white focus:ring-white"
                     placeholder="••••••••"
                   />
                   <FormMessage />
@@ -190,7 +183,7 @@ export default function SignUpForm() {
             />
             <Button 
               type="submit" 
-              className='w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-purple-500/50' 
+              className='w-full bg-white hover:bg-gray-200 text-black font-semibold py-2 rounded-full transition-all' 
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -204,10 +197,10 @@ export default function SignUpForm() {
             </Button>
           </form>
         </Form>
-        <div className="text-center mt-6 pt-6 border-t border-slate-700">
-          <p className="text-gray-300 text-sm">
+        <div className="text-center mt-6 pt-6 border-t border-zinc-800">
+          <p className="text-gray-400 text-sm">
             Already have an account?{' '}
-            <Link href="/sign-in" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
+            <Link href="/sign-in" className="text-white hover:text-gray-300 font-semibold transition-colors">
               Sign in here
             </Link>
           </p>

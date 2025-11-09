@@ -3,8 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Mail, MessageSquare, Shield, Zap } from 'lucide-react';
+import { Mail, Shield, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { IncognitoIcon } from '@/components/IncognitoIcon';
 import Autoplay from 'embla-carousel-autoplay';
 import messages from '@/messages.json';
 
@@ -20,23 +21,23 @@ export default function Home() {
   return (
     <>
       {/* Main content */}
-      <main className="flex-grow flex flex-col items-center justify-center px-4 md:px-24 py-12 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+      <main className="flex-grow flex flex-col items-center justify-center px-4 md:px-24 py-12 bg-black text-white">
         {/* Hero Section */}
         <section className="text-center mb-12 md:mb-16 animate-fadeIn">
-          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
             Anonymous Feedback Platform
           </h1>
-          <p className="mt-4 md:mt-6 text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-4 md:mt-6 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Share honest feedback anonymously. Get real insights. Build authentic connections.
           </p>
           <div className="mt-8 flex gap-4 justify-center flex-wrap">
             <Link href="/sign-up">
-              <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-6 rounded-lg font-semibold transition-all hover:shadow-lg hover:shadow-purple-500/50">
+              <Button className="bg-white hover:bg-gray-200 text-black px-8 py-6 rounded-full font-semibold transition-all">
                 Get Started
               </Button>
             </Link>
             <Link href="/sign-in">
-              <Button variant="outline" className="border-purple-400 text-purple-400 hover:bg-purple-400/10 px-8 py-6 rounded-lg font-semibold">
+              <Button className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black px-8 py-6 rounded-full font-semibold transition-all">
                 Sign In
               </Button>
             </Link>
@@ -45,32 +46,29 @@ export default function Home() {
 
         {/* Features Section */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-4xl">
-          <Card className="bg-slate-800/50 border-slate-700 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/20">
+          <Card className="bg-zinc-900 border-zinc-800 hover:border-white transition-all">
             <CardHeader>
-              <Shield className="w-8 h-8 text-purple-400 mb-2" />
               <CardTitle className="text-white">Completely Anonymous</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300">
+            <CardContent className="text-gray-400">
               Send feedback without revealing your identity. Complete privacy guaranteed.
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/20">
+          <Card className="bg-zinc-900 border-zinc-800 hover:border-white transition-all">
             <CardHeader>
-              <Zap className="w-8 h-8 text-green-400 mb-2" />
               <CardTitle className="text-white">Lightning Fast</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300">
+            <CardContent className="text-gray-400">
               Instant delivery and real-time notifications for all your messages.
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/20">
+          <Card className="bg-zinc-900 border-zinc-800 hover:border-white transition-all">
             <CardHeader>
-              <MessageSquare className="w-8 h-8 text-blue-400 mb-2" />
               <CardTitle className="text-white">Easy Sharing</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300">
+            <CardContent className="text-gray-400">
               Share your link and receive authentic feedback from anyone, anytime.
             </CardContent>
           </Card>
@@ -86,17 +84,17 @@ export default function Home() {
             <CarouselContent>
               {messages.map((message, index) => (
                 <CarouselItem key={index} className="p-4">
-                  <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+                  <Card className="bg-zinc-900 border-zinc-800 hover:border-white transition-all">
                     <CardHeader>
-                      <CardTitle className="text-purple-300 text-lg">{message.title}</CardTitle>
+                      <CardTitle className="text-white text-lg">{message.title}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col space-y-3">
                       <div className="flex items-start space-x-3">
-                        <Mail className="flex-shrink-0 w-5 h-5 text-purple-400 mt-1" />
-                        <p className="text-gray-200">{message.content}</p>
+                        <Mail className="flex-shrink-0 w-5 h-5 text-white mt-1" />
+                        <p className="text-gray-300">{message.content}</p>
                       </div>
-                      <p className="text-xs text-gray-400 flex items-center gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <p className="text-xs text-gray-500 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-white rounded-full"></span>
                         {message.received}
                       </p>
                     </CardContent>
@@ -104,16 +102,16 @@ export default function Home() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div className="flex justify-center gap-2 mt-6">
-              <CarouselPrevious className="relative position-static border-purple-400 text-purple-400 hover:bg-purple-400/10" />
-              <CarouselNext className="relative position-static border-purple-400 text-purple-400 hover:bg-purple-400/10" />
+            <div className="flex justify-center gap-4 mt-6">
+              <CarouselPrevious className="static translate-y-0 bg-transparent border-2 border-white text-white hover:bg-white hover:text-black transition-all" />
+              <CarouselNext className="static translate-y-0 bg-transparent border-2 border-white text-white hover:bg-white hover:text-black transition-all" />
             </div>
           </Carousel>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="text-center p-6 md:p-8 bg-slate-950 border-t border-slate-800 text-gray-400">
+      <footer className="text-center p-6 md:p-8 bg-black border-t border-zinc-800 text-gray-400">
         <p>© 2025 Anonymous Feedback. All rights reserved.</p>
         <p className="text-sm mt-2 text-gray-500">Share authentically. Grow meaningfully.</p>
       </footer>
