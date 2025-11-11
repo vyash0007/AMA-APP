@@ -66,7 +66,7 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
               <Button 
                 variant='ghost' 
                 size='sm'
-                className="text-white hover:text-gray-300 hover:bg-zinc-800 rounded-full transition-colors"
+                className="text-white hover:text-gray-300 hover:bg-zinc-800 rounded-md transition-colors"
               >
                 <X className="w-5 h-5" />
               </Button>

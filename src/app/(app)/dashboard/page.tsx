@@ -145,7 +145,7 @@ function UserDashboard() {
         </div>
 
         {/* Share Section */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-none p-6 mb-8">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-md p-6 mb-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -157,11 +157,11 @@ function UserDashboard() {
               type="text"
               value={profileUrl}
               disabled
-              className="flex-1 bg-zinc-800 border border-zinc-700 text-white placeholder-gray-500 px-4 py-2 rounded-none font-mono text-sm"
+              className="flex-1 bg-zinc-800 border border-zinc-700 text-white placeholder-gray-500 px-4 py-2 rounded-md font-mono text-sm"
             />
             <Button 
               onClick={copyToClipboard}
-              className="bg-white hover:bg-gray-200 text-black font-semibold rounded-full transition-all whitespace-nowrap"
+              className="bg-white hover:bg-gray-200 text-black font-semibold rounded-md transition-all whitespace-nowrap"
             >
               Copy Link
             </Button>
@@ -169,7 +169,7 @@ function UserDashboard() {
         </div>
 
         {/* Accept Messages Section */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-none p-6 mb-8">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-md p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-bold text-white mb-1">Message Acceptance</h3>
@@ -202,7 +202,7 @@ function UserDashboard() {
                 e.preventDefault();
                 fetchMessages(true);
               }}
-              className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-full transition-all flex gap-2"
+              className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-md transition-all flex gap-2"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -230,7 +230,7 @@ function UserDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-zinc-900 border border-zinc-800 rounded-none">
+            <div className="text-center py-16 bg-zinc-900 border border-zinc-800 rounded-md">
               <svg className="w-16 h-16 mx-auto text-zinc-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
               </svg>

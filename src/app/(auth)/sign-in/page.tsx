@@ -60,7 +60,7 @@ export default function SignInForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-black px-4">
-      <div className="w-full max-w-md p-8 space-y-8 bg-zinc-900 border border-zinc-800 rounded-none shadow-2xl">
+      <div className="w-full max-w-md p-8 space-y-8 bg-zinc-900 border border-zinc-800 rounded-md shadow-2xl">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
             Welcome Back
@@ -101,7 +101,7 @@ export default function SignInForm() {
               )}
             />
             <Button 
-              className='w-full bg-white hover:bg-gray-200 text-black font-semibold py-2 rounded-full transition-all' 
+              className='w-full bg-white hover:bg-gray-200 text-black font-semibold py-2 rounded-md transition-all' 
               type="submit"
             >
               Sign In

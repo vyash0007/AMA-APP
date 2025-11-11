@@ -18,7 +18,7 @@ function Navbar() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="p-2 bg-white rounded-none">
+            <div className="p-2 bg-white rounded-md">
               <IncognitoIcon className="text-black" size={24} />
             </div>
             <span className="text-xl font-bold text-white">
@@ -37,13 +37,13 @@ function Navbar() {
               </div>
               <div className="w-px h-6 bg-zinc-800 hidden md:block"></div>
               <Link href="/dashboard">
-                <Button className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-full transition-all text-sm">
+                <Button className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-md transition-all text-sm">
                   Dashboard
                 </Button>
               </Link>
               <Button 
                 onClick={() => signOut()}
-                className="bg-white hover:bg-gray-200 text-black rounded-full transition-all flex gap-2 text-sm"
+                className="bg-white hover:bg-gray-200 text-black rounded-md transition-all flex gap-2 text-sm"
               >
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -52,13 +52,13 @@ function Navbar() {
           ) : (
             <div className="flex gap-4">
               <Link href="/sign-in">
-                <Button className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-full transition-all flex gap-2 text-sm">
+                <Button className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-md transition-all flex gap-2 text-sm">
                   <LogIn className="w-4 h-4" />
                   Sign In
                 </Button>
               </Link>
               <Link href="/sign-up">
-                <Button className="bg-white hover:bg-gray-200 text-black rounded-full transition-all text-sm">
+                <Button className="bg-white hover:bg-gray-200 text-black rounded-md transition-all text-sm">
                   Sign Up
                 </Button>
               </Link>

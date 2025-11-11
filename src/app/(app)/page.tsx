@@ -32,12 +32,12 @@ export default function Home() {
           </p>
           <div className="mt-8 flex gap-4 justify-center flex-wrap">
             <Link href="/sign-up">
-              <Button className="bg-white hover:bg-gray-200 text-black px-8 py-6 rounded-full font-semibold transition-all">
+              <Button className="bg-white hover:bg-gray-200 text-black px-8 py-6 rounded-md font-semibold transition-all">
                 Get Started
               </Button>
             </Link>
             <Link href="/sign-in">
-              <Button className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black px-8 py-6 rounded-full font-semibold transition-all">
+              <Button className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black px-8 py-6 rounded-md font-semibold transition-all">
                 Sign In
               </Button>
             </Link>
